@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подача заявки - GoreSeries Продакшн</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Стили для скроллбара */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary-red) 0%, var(--primary-yellow) 100%);
+            border-radius: 6px;
+            border: 2px solid var(--dark-bg);
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--accent-red) 0%, var(--accent-yellow) 100%);
+        }
+        
+        :root {
+            --primary-red: #c8102e;
+            --primary-yellow: #ffd700;
+            --dark-red: #8b0000;
+            --light-yellow: #fffacd;
+            --dark-bg: #0a0a0a;
+            --darker-bg: #050505;
+            --accent-red: #ff4757;
+            --accent-yellow: #ffdd59;
+            --discord-purple: #5865F2;
+            --discord-purple-dark: #4752C4;
+            --success-green: #2ecc71;
+            --error-red: #e74c3c;
+            --warning-orange: #f39c12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: var(--dark-bg);
+            color: white;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Header Styles */
+        header {
+            background: rgba(10, 10, 10, 0.95);
+            padding: 1.2rem 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo-icon {
+            color: var(--primary-yellow);
+            font-size: 2.2rem;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+            animation: pulse 2s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-yellow) 0%, var(--accent-yellow) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        nav a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            position: relative;
+        }
+        
+        nav a:hover {
+            color: var(--primary-yellow);
+            background: rgba(255, 215, 0, 0.1);
+        }
+        
+        /* Discord Button in Header */
+        .discord-btn-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--discord-purple);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3);
+        }
+        
+        .discord-btn-header:hover {
+            background: var(--discord-purple-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(88, 101, 242, 0.4);
+        }
+        
+        /* Application Hero Section */
+        .application-hero {
+            min-height: 50vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            margin-top: 100px;
+            padding: 4rem 0;
+        }
+        
+        .application-hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(200, 16, 46, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 100%);
+            z-index: -1;
+        }
+        
+        .application-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .application-title h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff 0%, var(--primary-yellow) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .application-title p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Form Section */
+        .application-form-section {
+            padding: 4rem 0;
+            position: relative;
+        }
+        
+        .form-container {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 3rem;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .form-group {
+            margin-bottom: 2rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-yellow);
+            font-size: 1.1rem;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        /* Улучшенный стиль для выпадающих списков */
+        .form-group select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffd700'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.5em;
+            padding-right: 3rem;
+            cursor: pointer;
+        }
+        
+        /* Стили для опций в выпадающем списке */
+        .form-group select option {
+            background-color: var(--dark-bg);
+            color: white;
+            font-size: 1.1rem;
+            padding: 1rem;
+        }
+        
+        /* Стили для всех опций кроме первого (placeholder) */
+        .form-group select option:not(:first-child) {
+            color: white;
+            background-color: #333;
+        }
+        
+        /* Стиль для выбранной опции */
+        .form-group select option:checked {
+            background-color: var(--primary-yellow);
+            color: var(--dark-bg);
+            font-weight: bold;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-yellow);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
+        }
+        
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .age-requirement {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(255, 215, 0, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-yellow);
+        }
+        
+        .age-requirement i {
+            color: var(--primary-yellow);
+            font-size: 1.2rem;
+        }
+        
+        .age-requirement p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(255, 215, 0, 0.05);
+            border-radius: 8px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary-yellow);
+        }
+        
+        .checkbox-group label {
+            margin-bottom: 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .submit-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-yellow) 0%, var(--accent-yellow) 100%);
+            color: var(--dark-bg);
+            padding: 1.2rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.5);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Blocked Form Styles */
+        .form-blocked {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .blocked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .blocked-message {
+            text-align: center;
+            padding: 2rem;
+            max-width: 80%;
+        }
+        
+        .blocked-message i {
+            font-size: 3rem;
+            color: var(--primary-yellow);
+            margin-bottom: 1rem;
+        }
+        
+        .blocked-message h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-yellow);
+        }
+        
+        .blocked-message p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Status Messages */
+        .status-message {
+            display: none;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            text-align: center;
+            font-weight: 600;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .status-success {
+            display: block;
+            background: rgba(46, 204, 113, 0.1);
+            border: 1px solid var(--success-green);
+            color: var(--success-green);
+        }
+        
+        .status-error {
+            display: block;
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid var(--error-red);
+            color: var(--error-red);
+        }
+        
+        .status-warning {
+            display: block;
+            background: rgba(243, 156, 18, 0.1);
+            border: 1px solid var(--warning-orange);
+            color: var(--warning-orange);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--dark-red) 0%, var(--primary-red) 100%);
+            padding: 3rem 0 2rem;
+            text-align: center;
+            position: relative;
+            margin-top: 4rem;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .footer-logo i {
+            color: var(--primary-yellow);
+            font-size: 1.8rem;
+        }
+        
+        .footer-logo h2 {
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .copyright {
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            width: 100%;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1.2rem;
+            }
+            
+            nav ul {
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .application-hero {
+                padding: 3rem 0;
+                margin-top: 140px;
+            }
+            
+            .application-title h1 {
+                font-size: 2.2rem;
+            }
+            
+            .application-title p {
+                font-size: 1rem;
+            }
+            
+            .form-container {
+                padding: 2rem;
+            }
+            
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+            
+            .logo-icon {
+                font-size: 1.8rem;
+            }
+            
+            .form-group select {
+                font-size: 1rem;
+                padding: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .application-title h1 {
+                font-size: 1.8rem;
+            }
+            
+            .form-container {
+                padding: 1.5rem;
+            }
+            
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
+            
+            .form-group label {
+                font-size: 1rem;
+            }
+            
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                font-size: 1rem;
+                padding: 0.8rem;
+            }
+            
+            .form-group select {
+                padding-right: 2.5rem;
+                background-size: 1.2em;
+            }
+            
+            nav a {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+            
+            .discord-btn-header {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .container {
+                width: 95%;
+            }
+            
+            .application-title h1 {
+                font-size: 1.5rem;
+            }
+            
+            nav ul {
+                gap: 0.5rem;
+            }
+            
+            nav a {
+                font-size: 0.8rem;
+                padding: 0.3rem 0.6rem;
+            }
+            
+            .form-container {
+                padding: 1rem;
+            }
+            
+            .form-group select {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-film logo-icon"></i>
+                    <h1>GoreSeries</h1>
+                </div>
+                <nav>
+                    <ul>
+                        <li>
+                            <a href="https://discord.gg/HNZqagrNCd" class="discord-btn-header" target="_blank">
+                                <i class="fab fa-discord"></i>
+                                Discord
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Application Hero Section -->
+    <section class="application-hero">
+        <div class="application-hero-bg"></div>
+        <div class="container">
+            <div class="application-title">
+                <h1>Подача заявки</h1>
+                <p>Присоединяйтесь к команде "Генерации сцен" GoreSeries Продакшн. Заполните форму ниже, и мы рассмотрим вашу кандидатуру.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Form Section -->
+    <section class="application-form-section">
+        <div class="container">
+            <div class="form-container" id="formContainer">
+                <!-- Blocked Overlay (shown when already submitted) -->
+                <div class="blocked-overlay" id="blockedOverlay" style="display: none;">
+                    <div class="blocked-message">
+                        <i class="fas fa-ban"></i>
+                        <h3>Заявка уже отправлена</h3>
+                        <p>Вы уже отправили заявку в команду "Генерации сцен".</p>
+                        <p>Повторная отправка заявки невозможна.</p>
+                        <p style="margin-top: 1rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.6);">
+                            Если это ошибка, свяжитесь с нами в Discord
+                        </p>
+                    </div>
+                </div>
+
+                <form id="applicationForm">
+                    <!-- Discord Username -->
+                    <div class="form-group">
+                        <label for="discordUsername">
+                            <i class="fab fa-discord"></i> Ваш username в Discord
+                        </label>
+                        <input 
+                            type="text" 
+                            id="discordUsername" 
+                            name="discordUsername"
+                            placeholder="Введите ваш Discord username (например: username#1234)"
+                            required
+                        >
+                    </div>
+
+                    <!-- Age -->
+                    <div class="form-group">
+                        <label for="age">
+                            <i class="fas fa-birthday-cake"></i> Ваш возраст
+                        </label>
+                        <div class="age-requirement">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <p>Для участия в команде вам должно быть не менее 13 лет</p>
+                        </div>
+                        <select id="age" name="age" required>
+                            <option value="" disabled selected>Выберите ваш возраст</option>
+                            <option value="13">13 лет</option>
+                            <option value="14">14 лет</option>
+                            <option value="15">15 лет</option>
+                            <option value="16">16 лет</option>
+                            <option value="17">17 лет</option>
+                            <option value="18">18+ лет</option>
+                        </select>
+                    </div>
+
+                    <!-- Sora 2 Access -->
+                    <div class="form-group">
+                        <label for="soraAccess">
+                            <i class="fas fa-video"></i> Имеете ли вы доступ к Sora 2?
+                        </label>
+                        <select id="soraAccess" name="soraAccess" required>
+                            <option value="" disabled selected>Выберите ответ</option>
+                            <option value="yes">Да, имею доступ</option>
+                            <option value="no">Нет, не имею доступа</option>
+                            <option value="soon">Планирую получить доступ</option>
+                        </select>
+                    </div>
+
+                    <!-- Active Tasks -->
+                    <div class="form-group">
+                        <label for="activeTasks">
+                            <i class="fas fa-tasks"></i> Будете ли вы активно выполнять задания которые вам дают создатели проектов?
+                        </label>
+                        <select id="activeTasks" name="activeTasks" required>
+                            <option value="" disabled selected>Выберите ответ</option>
+                            <option value="yes_always">Да, всегда буду выполнять задания</option>
+                            <option value="yes_most">Да, буду выполнять большинство заданий</option>
+                            <option value="depends">Буду выполнять в зависимости от сложности</option>
+                            <option value="limited">Буду выполнять, но ограниченное количество</option>
+                        </select>
+                    </div>
+
+                    <!-- Motivation -->
+                    <div class="form-group">
+                        <label for="motivation">
+                            <i class="fas fa-comment-alt"></i> Почему вы хотите вступить в команду "Генерации сцен" и почему мы должны выбрать именно вас?
+                        </label>
+                        <textarea 
+                            id="motivation" 
+                            name="motivation"
+                            placeholder="Расскажите о вашей мотивации, опыте в AI-генерации, примерах работ и почему именно вы подходите нашей команде..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <!-- Agreement -->
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="agreement" name="agreement" required>
+                        <label for="agreement">
+                            Я подтверждаю, что вся предоставленная информация является достоверной, и соглашаюсь с условиями участия в команде
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i>
+                        Отправить заявку
+                    </button>
+
+                    <!-- Status Messages -->
+                    <div class="status-message" id="successMessage">
+                        <i class="fas fa-check-circle"></i>
+                        <p>Заявка успешно отправлена! Мы свяжемся с вами в Discord в течение 3-5 дней.</p>
+                        <p style="margin-top: 0.5rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.6);">
+                            Повторная отправка заявки невозможна
+                        </p>
+                    </div>
+
+                    <div class="status-message" id="errorMessage">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Ошибка при отправке заявки. Пожалуйста, попробуйте еще раз или свяжитесь с нами напрямую в Discord.</p>
+                    </div>
+
+                    <div class="status-message" id="ageErrorMessage">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Для участия в команде вам должно быть не менее 13 лет.</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-film"></i>
+                    <h2>GoreSeries Продакшн</h2>
+                </div>
+                <div class="copyright">
+                    <p>&copy; 2025 GoreSeries Продакшн.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('applicationForm');
+            const formContainer = document.getElementById('formContainer');
+            const blockedOverlay = document.getElementById('blockedOverlay');
+            const submitBtn = document.getElementById('submitBtn');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const ageErrorMessage = document.getElementById('ageErrorMessage');
+            const ageSelect = document.getElementById('age');
+            
+            // Discord Webhook URL
+            const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1446203815635320932/nX4Llb8cf3_f6EqMi6s_Lv3oMWSFYrsU5kHm2v4qfYpa17B8DvhGFlq7kkMLn3REbJN5';
+            
+            // Storage key
+            const STORAGE_KEY = 'goreseries_application_submitted';
+            
+            // Check if user already submitted
+            function checkIfAlreadySubmitted() {
+                const submitted = localStorage.getItem(STORAGE_KEY);
+                if (submitted === 'true') {
+                    // Block the form
+                    formContainer.classList.add('form-blocked');
+                    blockedOverlay.style.display = 'flex';
+                    submitBtn.disabled = true;
+                    return true;
+                }
+                return false;
+            }
+            
+            // Check on page load
+            if (checkIfAlreadySubmitted()) {
+                // If already submitted, hide success message if it was showing
+                successMessage.style.display = 'none';
+            }
+            
+            // Hide all status messages initially
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            ageErrorMessage.style.display = 'none';
+            
+            // Age validation
+            ageSelect.addEventListener('change', function() {
+                const selectedAge = parseInt(this.value);
+                if (selectedAge < 13 && selectedAge !== '') {
+                    ageErrorMessage.style.display = 'block';
+                    submitBtn.disabled = true;
+                } else {
+                    ageErrorMessage.style.display = 'none';
+                    submitBtn.disabled = false;
+                }
+            });
+            
+            // Form submission
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Check if already submitted (double check)
+                if (checkIfAlreadySubmitted()) {
+                    return;
+                }
+                
+                // Get form data
+                const discordUsername = document.getElementById('discordUsername').value;
+                const age = document.getElementById('age').value;
+                const soraAccess = document.getElementById('soraAccess').value;
+                const activeTasks = document.getElementById('activeTasks').value;
+                const motivation = document.getElementById('motivation').value;
+                
+                // Hide all messages
+                successMessage.style.display = 'none';
+                errorMessage.style.display = 'none';
+                ageErrorMessage.style.display = 'none';
+                
+                // Validate age
+                if (parseInt(age) < 13) {
+                    ageErrorMessage.style.display = 'block';
+                    return;
+                }
+                
+                // Change button state
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
+                submitBtn.disabled = true;
+                
+                try {
+                    // Create formatted Discord message with bullet points
+                    const formattedMessage = `**👤 Discord:** ${discordUsername || "Не указано"}
+
+**🎂 Возраст:** ${age} лет
+
+**🎬 Доступ к Sora 2:** ${getSoraAccessText(soraAccess)}
+
+**📋 Активность выполнения заданий:** ${getActiveTasksText(activeTasks)}
+
+**💭 Мотивация:**
+${motivation.substring(0, 1000) + (motivation.length > 1000 ? "..." : "")}
+
+────────────────────
+📅 ${new Date().toLocaleDateString('ru-RU')} ⏰ ${new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+GoreSeries Продакшн - Заявки в команду`;
+                    
+                    // Create Discord embed
+                    const embed = {
+                        title: "📝 Новая заявка в команду Генерации сцен",
+                        color: 0xffd700, // Yellow color
+                        description: formattedMessage,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    // Send to Discord webhook
+                    const response = await fetch(DISCORD_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            embeds: [embed]
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        // Mark as submitted in localStorage
+                        localStorage.setItem(STORAGE_KEY, 'true');
+                        
+                        // Show success message
+                        successMessage.style.display = 'block';
+                        
+                        // Block the form
+                        formContainer.classList.add('form-blocked');
+                        blockedOverlay.style.display = 'flex';
+                        
+                        // Reset form
+                        form.reset();
+                        
+                        // Scroll to success message
+                        successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } else {
+                        throw new Error('Failed to send to Discord');
+                    }
+                    
+                } catch (error) {
+                    console.error('Error submitting form:', error);
+                    
+                    // Show error message
+                    errorMessage.style.display = 'block';
+                    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                } finally {
+                    // Reset button state
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
+            
+            // Helper function for Sora access text
+            function getSoraAccessText(value) {
+                switch(value) {
+                    case 'yes': return '✅ Да, имею доступ';
+                    case 'no': return '❌ Нет, не имею доступа';
+                    case 'soon': return '🕐 Планирую получить доступ';
+                    default: return 'Не указано';
+                }
+            }
+            
+            // Helper function for active tasks text
+            function getActiveTasksText(value) {
+                switch(value) {
+                    case 'yes_always': return '✅ Да, всегда буду выполнять задания';
+                    case 'yes_most': return '✅ Да, буду выполнять большинство заданий';
+                    case 'depends': return '🔄 Буду выполнять в зависимости от сложности';
+                    case 'limited': return '⚠️ Буду выполнять, но ограниченное количество';
+                    default: return 'Не указано';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
