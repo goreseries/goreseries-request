@@ -435,6 +435,30 @@
             color: var(--warning-orange);
         }
         
+        .field-requirements {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: normal;
+        }
+        
+        .char-counter {
+            display: block;
+            text-align: right;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .char-counter.warning {
+            color: var(--warning-orange);
+        }
+        
+        .char-counter.error {
+            color: var(--error-red);
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -633,13 +657,10 @@
                 <!-- Blocked Overlay (shown when already submitted) -->
                 <div class="blocked-overlay" id="blockedOverlay" style="display: none;">
                     <div class="blocked-message">
-                        <i class="fas fa-ban"></i>
-                        <h3>Заявка уже отправлена</h3>
-                        <p>Вы уже отправили заявку в команду "Генерации сцен".</p>
-                        <p>Повторная отправка заявки невозможна.</p>
-                        <p style="margin-top: 1rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.6);">
-                            Если это ошибка, свяжитесь с нами в Discord
-                        </p>
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Заявка успешно отправлена!</h3>
+                        <p>Вы успешно отправили заявку в команду "Генерации сцен".</p>
+                        <p>Ждите пока мы рассмотрим вашу заявку, если вы будете приняты, вам отпишут в Л/С в дискорд.</p>
                     </div>
                 </div>
 
@@ -648,14 +669,17 @@
                     <div class="form-group">
                         <label for="discordUsername">
                             <i class="fab fa-discord"></i> Ваш username в Discord
+                            <span class="field-requirements">(от 2 до 32 символов, только английские буквы, цифры, точки и нижние подчеркивания)</span>
                         </label>
                         <input 
                             type="text" 
                             id="discordUsername" 
                             name="discordUsername"
-                            placeholder="Введите ваш Discord username (например: username#1234)"
+                            placeholder="Пример: super_vanya или user.name123"
                             required
+                            maxlength="32"
                         >
+                        <div class="char-counter" id="usernameCounter">0/32</div>
                     </div>
 
                     <!-- Age -->
@@ -709,13 +733,17 @@
                     <div class="form-group">
                         <label for="motivation">
                             <i class="fas fa-comment-alt"></i> Почему вы хотите вступить в команду "Генерации сцен" и почему мы должны выбрать именно вас?
+                            <span class="field-requirements">(минимум 30 символов, максимум 2000 символов)</span>
                         </label>
                         <textarea 
                             id="motivation" 
                             name="motivation"
                             placeholder="Расскажите о вашей мотивации, опыте в AI-генерации, примерах работ и почему именно вы подходите нашей команде..."
                             required
+                            maxlength="2000"
+                            minlength="30"
                         ></textarea>
+                        <div class="char-counter" id="motivationCounter">0/2000</div>
                     </div>
 
                     <!-- Agreement -->
@@ -750,6 +778,11 @@
                         <i class="fas fa-exclamation-triangle"></i>
                         <p>Для участия в команде вам должно быть не менее 13 лет.</p>
                     </div>
+
+                    <div class="status-message" id="validationErrorMessage">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p id="validationErrorText">Пожалуйста, исправьте ошибки в форме.</p>
+                    </div>
                 </form>
             </div>
         </div>
@@ -779,6 +812,8 @@
             const successMessage = document.getElementById('successMessage');
             const errorMessage = document.getElementById('errorMessage');
             const ageErrorMessage = document.getElementById('ageErrorMessage');
+            const validationErrorMessage = document.getElementById('validationErrorMessage');
+            const validationErrorText = document.getElementById('validationErrorText');
             const ageSelect = document.getElementById('age');
             
             // Discord Webhook URL
@@ -810,6 +845,42 @@
             successMessage.style.display = 'none';
             errorMessage.style.display = 'none';
             ageErrorMessage.style.display = 'none';
+            validationErrorMessage.style.display = 'none';
+            
+            // Character counters
+            const usernameInput = document.getElementById('discordUsername');
+            const usernameCounter = document.getElementById('usernameCounter');
+            const motivationTextarea = document.getElementById('motivation');
+            const motivationCounter = document.getElementById('motivationCounter');
+            
+            // Update character counters
+            function updateCharCounters() {
+                const usernameLength = usernameInput.value.length;
+                usernameCounter.textContent = `${usernameLength}/32`;
+                
+                const motivationLength = motivationTextarea.value.length;
+                motivationCounter.textContent = `${motivationLength}/2000`;
+                
+                // Add warning class if close to limit
+                if (motivationLength >= 1900) {
+                    motivationCounter.classList.add('warning');
+                } else {
+                    motivationCounter.classList.remove('warning');
+                }
+                
+                if (motivationLength >= 1990) {
+                    motivationCounter.classList.add('error');
+                } else {
+                    motivationCounter.classList.remove('error');
+                }
+            }
+            
+            // Listen for input events
+            usernameInput.addEventListener('input', updateCharCounters);
+            motivationTextarea.addEventListener('input', updateCharCounters);
+            
+            // Initialize counters
+            updateCharCounters();
             
             // Age validation
             ageSelect.addEventListener('change', function() {
@@ -823,6 +894,53 @@
                 }
             });
             
+            // Validate Discord username
+            function validateDiscordUsername(username) {
+                // Check length
+                if (username.length < 2 || username.length > 32) {
+                    return false;
+                }
+                
+                // Check if contains only allowed characters: English letters, numbers, dots, underscores
+                const discordUsernameRegex = /^[a-zA-Z0-9._]+$/;
+                return discordUsernameRegex.test(username);
+            }
+            
+            // Validate motivation text length
+            function validateMotivation(text) {
+                return text.length >= 30 && text.length <= 2000;
+            }
+            
+            // Form validation
+            function validateForm() {
+                const discordUsername = usernameInput.value.trim();
+                const age = ageSelect.value;
+                const motivation = motivationTextarea.value.trim();
+                
+                const errors = [];
+                
+                // Validate Discord username
+                if (!validateDiscordUsername(discordUsername)) {
+                    errors.push('Discord username должен быть от 2 до 32 символов и содержать только английские буквы, цифры, точки и нижние подчеркивания');
+                }
+                
+                // Validate age
+                if (parseInt(age) < 13) {
+                    errors.push('Для участия в команде вам должно быть не менее 13 лет');
+                }
+                
+                // Validate motivation
+                if (!validateMotivation(motivation)) {
+                    if (motivation.length < 30) {
+                        errors.push('Поле "Почему вы хотите вступить..." должно содержать минимум 30 символов');
+                    } else if (motivation.length > 2000) {
+                        errors.push('Поле "Почему вы хотите вступить..." должно содержать максимум 2000 символов');
+                    }
+                }
+                
+                return errors;
+            }
+            
             // Form submission
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -832,23 +950,28 @@
                     return;
                 }
                 
-                // Get form data
-                const discordUsername = document.getElementById('discordUsername').value;
-                const age = document.getElementById('age').value;
-                const soraAccess = document.getElementById('soraAccess').value;
-                const activeTasks = document.getElementById('activeTasks').value;
-                const motivation = document.getElementById('motivation').value;
-                
                 // Hide all messages
                 successMessage.style.display = 'none';
                 errorMessage.style.display = 'none';
                 ageErrorMessage.style.display = 'none';
+                validationErrorMessage.style.display = 'none';
                 
-                // Validate age
-                if (parseInt(age) < 13) {
-                    ageErrorMessage.style.display = 'block';
+                // Validate form
+                const validationErrors = validateForm();
+                
+                if (validationErrors.length > 0) {
+                    validationErrorText.innerHTML = validationErrors.join('<br>');
+                    validationErrorMessage.style.display = 'block';
+                    validationErrorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     return;
                 }
+                
+                // Get form data
+                const discordUsername = usernameInput.value;
+                const age = ageSelect.value;
+                const soraAccess = document.getElementById('soraAccess').value;
+                const activeTasks = document.getElementById('activeTasks').value;
+                const motivation = motivationTextarea.value;
                 
                 // Change button state
                 const originalText = submitBtn.innerHTML;
@@ -904,6 +1027,7 @@ GoreSeries Продакшн - Заявки в команду`;
                         
                         // Reset form
                         form.reset();
+                        updateCharCounters();
                         
                         // Scroll to success message
                         successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
