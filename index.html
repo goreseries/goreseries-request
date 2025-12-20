@@ -220,6 +220,7 @@
         
         .form-group {
             margin-bottom: 2rem;
+            position: relative;
         }
         
         .form-group label {
@@ -246,6 +247,35 @@
             appearance: none;
         }
         
+        /* Стили для полей с ошибкой */
+        .form-group.error input,
+        .form-group.error select,
+        .form-group.error textarea {
+            border-color: var(--error-red);
+            background: rgba(231, 76, 60, 0.1);
+            box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.2);
+        }
+        
+        .form-group.error label {
+            color: var(--error-red);
+        }
+        
+        .form-group.error .field-requirements {
+            color: rgba(231, 76, 60, 0.8);
+        }
+        
+        .form-group.success input,
+        .form-group.success select,
+        .form-group.success textarea {
+            border-color: var(--success-green);
+            background: rgba(46, 204, 113, 0.1);
+            box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.2);
+        }
+        
+        .form-group.success label {
+            color: var(--success-green);
+        }
+        
         /* Улучшенный стиль для выпадающих списков */
         .form-group select {
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffd700'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
@@ -254,6 +284,10 @@
             background-size: 1.5em;
             padding-right: 3rem;
             cursor: pointer;
+        }
+        
+        .form-group.error select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e74c3c'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
         }
         
         /* Стили для опций в выпадающем списке */
@@ -322,10 +356,23 @@
             border-radius: 8px;
         }
         
+        .checkbox-group.error {
+            background: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--error-red);
+        }
+        
+        .checkbox-group.error label {
+            color: var(--error-red);
+        }
+        
         .checkbox-group input[type="checkbox"] {
             width: 20px;
             height: 20px;
             accent-color: var(--primary-yellow);
+        }
+        
+        .checkbox-group.error input[type="checkbox"] {
+            accent-color: var(--error-red);
         }
         
         .checkbox-group label {
@@ -460,9 +507,66 @@
             color: var(--error-red);
         }
         
+        /* Стили для сообщений об ошибках в полях */
+        .field-error-message {
+            display: none;
+            margin-top: 0.5rem;
+            padding: 0.8rem;
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid var(--error-red);
+            border-radius: 6px;
+            color: var(--error-red);
+            font-size: 0.9rem;
+            animation: slideDown 0.3s ease;
+            border-left: 4px solid var(--error-red);
+        }
+        
+        .field-error-message i {
+            margin-right: 0.5rem;
+        }
+        
+        .field-success-message {
+            display: none;
+            margin-top: 0.5rem;
+            padding: 0.8rem;
+            background: rgba(46, 204, 113, 0.1);
+            border: 1px solid var(--success-green);
+            border-radius: 6px;
+            color: var(--success-green);
+            font-size: 0.9rem;
+            animation: slideDown 0.3s ease;
+            border-left: 4px solid var(--success-green);
+        }
+        
+        .field-success-message i {
+            margin-right: 0.5rem;
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
+        }
+        
+        @keyframes slideDown {
+            from { 
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Валидация в реальном времени */
+        .validation-pulse {
+            animation: validationPulse 0.5s ease;
+        }
+        
+        @keyframes validationPulse {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
         }
         
         /* Footer */
@@ -667,7 +771,7 @@
 
                 <form id="applicationForm">
                     <!-- Discord Username -->
-                    <div class="form-group">
+                    <div class="form-group" id="discordUsernameGroup">
                         <label for="discordUsername">
                             <i class="fab fa-discord"></i> Ваш username в Discord
                             <span class="field-requirements">(от 2 до 32 символов, только английские буквы, цифры, точки и нижние подчеркивания)</span>
@@ -680,11 +784,19 @@
                             required
                             maxlength="32"
                         >
+                        <div class="field-error-message" id="discordUsernameError">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span id="discordUsernameErrorText"></span>
+                        </div>
+                        <div class="field-success-message" id="discordUsernameSuccess">
+                            <i class="fas fa-check-circle"></i>
+                            Username в Discord корректен
+                        </div>
                         <div class="char-counter" id="usernameCounter">0/32</div>
                     </div>
 
                     <!-- Age -->
-                    <div class="form-group">
+                    <div class="form-group" id="ageGroup">
                         <label for="age">
                             <i class="fas fa-birthday-cake"></i> Ваш возраст
                         </label>
@@ -701,10 +813,18 @@
                             <option value="17">17 лет</option>
                             <option value="18">18+ лет</option>
                         </select>
+                        <div class="field-error-message" id="ageError">
+                            <i class="fas fa-exclamation-circle"></i>
+                            Для участия в команде вам должно быть не менее 13 лет
+                        </div>
+                        <div class="field-success-message" id="ageSuccess">
+                            <i class="fas fa-check-circle"></i>
+                            Возраст соответствует требованиям
+                        </div>
                     </div>
 
                     <!-- Sora 2 Access -->
-                    <div class="form-group">
+                    <div class="form-group" id="soraAccessGroup">
                         <label for="soraAccess">
                             <i class="fas fa-video"></i> Имеете ли вы доступ к Sora 2?
                         </label>
@@ -714,10 +834,18 @@
                             <option value="no">Нет, не имею доступа</option>
                             <option value="soon">Планирую получить доступ</option>
                         </select>
+                        <div class="field-error-message" id="soraAccessError">
+                            <i class="fas fa-exclamation-circle"></i>
+                            Пожалуйста, выберите один из вариантов ответа
+                        </div>
+                        <div class="field-success-message" id="soraAccessSuccess">
+                            <i class="fas fa-check-circle"></i>
+                            Ответ выбран
+                        </div>
                     </div>
 
                     <!-- Active Tasks -->
-                    <div class="form-group">
+                    <div class="form-group" id="activeTasksGroup">
                         <label for="activeTasks">
                             <i class="fas fa-tasks"></i> Будете ли вы активно выполнять задания которые вам дают создатели проектов?
                         </label>
@@ -728,10 +856,18 @@
                             <option value="depends">Буду выполнять в зависимости от сложности</option>
                             <option value="limited">Буду выполнять, но ограниченное количество</option>
                         </select>
+                        <div class="field-error-message" id="activeTasksError">
+                            <i class="fas fa-exclamation-circle"></i>
+                            Пожалуйста, выберите один из вариантов ответа
+                        </div>
+                        <div class="field-success-message" id="activeTasksSuccess">
+                            <i class="fas fa-check-circle"></i>
+                            Ответ выбран
+                        </div>
                     </div>
 
                     <!-- Motivation -->
-                    <div class="form-group">
+                    <div class="form-group" id="motivationGroup">
                         <label for="motivation">
                             <i class="fas fa-comment-alt"></i> Почему вы хотите вступить в команду "Генерации сцен" и почему мы должны выбрать именно вас?
                             <span class="field-requirements">(минимум 30 символов, максимум 2000 символов)</span>
@@ -744,15 +880,27 @@
                             maxlength="2000"
                             minlength="30"
                         ></textarea>
+                        <div class="field-error-message" id="motivationError">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span id="motivationErrorText">Поле должно содержать от 30 до 2000 символов</span>
+                        </div>
+                        <div class="field-success-message" id="motivationSuccess">
+                            <i class="fas fa-check-circle"></i>
+                            Текст мотивации корректен
+                        </div>
                         <div class="char-counter" id="motivationCounter">0/2000</div>
                     </div>
 
                     <!-- Agreement -->
-                    <div class="checkbox-group">
+                    <div class="checkbox-group" id="agreementGroup">
                         <input type="checkbox" id="agreement" name="agreement" required>
                         <label for="agreement">
                             Я подтверждаю, что вся предоставленная информация является достоверной, и соглашаюсь с условиями участия в команде
                         </label>
+                    </div>
+                    <div class="field-error-message" id="agreementError" style="margin-top: -1.5rem; margin-bottom: 2rem;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Необходимо подтвердить согласие с условиями
                     </div>
 
                     <!-- Submit Button -->
@@ -773,11 +921,6 @@
                     <div class="status-message" id="errorMessage">
                         <i class="fas fa-exclamation-circle"></i>
                         <p>Ошибка при отправке заявки. Пожалуйста, попробуйте еще раз или свяжитесь с нами напрямую в Discord.</p>
-                    </div>
-
-                    <div class="status-message" id="ageErrorMessage">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <p>Для участия в команде вам должно быть не менее 13 лет.</p>
                     </div>
 
                     <div class="status-message" id="validationErrorMessage">
@@ -812,10 +955,8 @@
             const submitBtn = document.getElementById('submitBtn');
             const successMessage = document.getElementById('successMessage');
             const errorMessage = document.getElementById('errorMessage');
-            const ageErrorMessage = document.getElementById('ageErrorMessage');
             const validationErrorMessage = document.getElementById('validationErrorMessage');
             const validationErrorText = document.getElementById('validationErrorText');
-            const ageSelect = document.getElementById('age');
             
             // Discord Webhook URL
             const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1446203815635320932/nX4Llb8cf3_f6EqMi6s_Lv3oMWSFYrsU5kHm2v4qfYpa17B8DvhGFlq7kkMLn3REbJN5';
@@ -845,7 +986,6 @@
             // Hide all status messages initially
             successMessage.style.display = 'none';
             errorMessage.style.display = 'none';
-            ageErrorMessage.style.display = 'none';
             validationErrorMessage.style.display = 'none';
             
             // Character counters
@@ -883,60 +1023,223 @@
             // Initialize counters
             updateCharCounters();
             
-            // Age validation
-            ageSelect.addEventListener('change', function() {
-                const selectedAge = parseInt(this.value);
-                if (selectedAge < 13 && selectedAge !== '') {
-                    ageErrorMessage.style.display = 'block';
-                    submitBtn.disabled = true;
-                } else {
-                    ageErrorMessage.style.display = 'none';
-                    submitBtn.disabled = false;
-                }
-            });
-            
             // Validate Discord username
             function validateDiscordUsername(username) {
                 // Check length
                 if (username.length < 2 || username.length > 32) {
-                    return false;
+                    return { isValid: false, message: 'Username должен быть от 2 до 32 символов' };
                 }
                 
                 // Check if contains only allowed characters: English letters, numbers, dots, underscores
                 const discordUsernameRegex = /^[a-zA-Z0-9._]+$/;
-                return discordUsernameRegex.test(username);
+                if (!discordUsernameRegex.test(username)) {
+                    return { isValid: false, message: 'Только английские буквы, цифры, точки и нижние подчеркивания' };
+                }
+                
+                return { isValid: true, message: '' };
             }
             
             // Validate motivation text length
             function validateMotivation(text) {
-                return text.length >= 30 && text.length <= 2000;
+                if (text.length < 30) {
+                    return { isValid: false, message: `Минимум 30 символов (сейчас: ${text.length})` };
+                }
+                if (text.length > 2000) {
+                    return { isValid: false, message: `Максимум 2000 символов (сейчас: ${text.length})` };
+                }
+                return { isValid: true, message: '' };
             }
+            
+            // Real-time validation functions
+            function validateDiscordUsernameField() {
+                const username = usernameInput.value.trim();
+                const result = validateDiscordUsername(username);
+                const group = document.getElementById('discordUsernameGroup');
+                const errorElement = document.getElementById('discordUsernameError');
+                const errorText = document.getElementById('discordUsernameErrorText');
+                const successElement = document.getElementById('discordUsernameSuccess');
+                
+                if (username === '') {
+                    group.classList.remove('error', 'success');
+                    errorElement.style.display = 'none';
+                    successElement.style.display = 'none';
+                    return false;
+                }
+                
+                if (result.isValid) {
+                    group.classList.remove('error');
+                    group.classList.add('success');
+                    errorElement.style.display = 'none';
+                    successElement.style.display = 'block';
+                    return true;
+                } else {
+                    group.classList.remove('success');
+                    group.classList.add('error');
+                    errorText.textContent = result.message;
+                    errorElement.style.display = 'block';
+                    successElement.style.display = 'none';
+                    
+                    // Add pulse animation for error
+                    usernameInput.classList.add('validation-pulse');
+                    setTimeout(() => usernameInput.classList.remove('validation-pulse'), 500);
+                    
+                    return false;
+                }
+            }
+            
+            function validateAgeField() {
+                const ageSelect = document.getElementById('age');
+                const age = parseInt(ageSelect.value);
+                const group = document.getElementById('ageGroup');
+                const errorElement = document.getElementById('ageError');
+                const successElement = document.getElementById('ageSuccess');
+                
+                if (!age) {
+                    group.classList.remove('error', 'success');
+                    errorElement.style.display = 'none';
+                    successElement.style.display = 'none';
+                    return false;
+                }
+                
+                if (age >= 13) {
+                    group.classList.remove('error');
+                    group.classList.add('success');
+                    errorElement.style.display = 'none';
+                    successElement.style.display = 'block';
+                    return true;
+                } else {
+                    group.classList.remove('success');
+                    group.classList.add('error');
+                    errorElement.style.display = 'block';
+                    successElement.style.display = 'none';
+                    
+                    // Add pulse animation for error
+                    ageSelect.classList.add('validation-pulse');
+                    setTimeout(() => ageSelect.classList.remove('validation-pulse'), 500);
+                    
+                    return false;
+                }
+            }
+            
+            function validateSelectField(fieldId, groupId, errorId, successId) {
+                const field = document.getElementById(fieldId);
+                const group = document.getElementById(groupId);
+                const errorElement = document.getElementById(errorId);
+                const successElement = document.getElementById(successId);
+                
+                if (field.value) {
+                    group.classList.remove('error');
+                    group.classList.add('success');
+                    errorElement.style.display = 'none';
+                    successElement.style.display = 'block';
+                    return true;
+                } else {
+                    group.classList.remove('success');
+                    group.classList.add('error');
+                    errorElement.style.display = 'block';
+                    successElement.style.display = 'none';
+                    return false;
+                }
+            }
+            
+            function validateMotivationField() {
+                const motivation = motivationTextarea.value.trim();
+                const result = validateMotivation(motivation);
+                const group = document.getElementById('motivationGroup');
+                const errorElement = document.getElementById('motivationError');
+                const errorText = document.getElementById('motivationErrorText');
+                const successElement = document.getElementById('motivationSuccess');
+                
+                if (motivation === '') {
+                    group.classList.remove('error', 'success');
+                    errorElement.style.display = 'none';
+                    successElement.style.display = 'none';
+                    return false;
+                }
+                
+                if (result.isValid) {
+                    group.classList.remove('error');
+                    group.classList.add('success');
+                    errorElement.style.display = 'none';
+                    successElement.style.display = 'block';
+                    return true;
+                } else {
+                    group.classList.remove('success');
+                    group.classList.add('error');
+                    errorText.textContent = result.message;
+                    errorElement.style.display = 'block';
+                    successElement.style.display = 'none';
+                    
+                    // Add pulse animation for error
+                    motivationTextarea.classList.add('validation-pulse');
+                    setTimeout(() => motivationTextarea.classList.remove('validation-pulse'), 500);
+                    
+                    return false;
+                }
+            }
+            
+            function validateAgreementField() {
+                const agreementCheckbox = document.getElementById('agreement');
+                const agreementGroup = document.getElementById('agreementGroup');
+                const agreementError = document.getElementById('agreementError');
+                
+                if (agreementCheckbox.checked) {
+                    agreementGroup.classList.remove('error');
+                    agreementError.style.display = 'none';
+                    return true;
+                } else {
+                    agreementGroup.classList.add('error');
+                    agreementError.style.display = 'block';
+                    return false;
+                }
+            }
+            
+            // Add event listeners for real-time validation
+            usernameInput.addEventListener('input', validateDiscordUsernameField);
+            usernameInput.addEventListener('blur', validateDiscordUsernameField);
+            
+            document.getElementById('age').addEventListener('change', validateAgeField);
+            
+            document.getElementById('soraAccess').addEventListener('change', function() {
+                validateSelectField('soraAccess', 'soraAccessGroup', 'soraAccessError', 'soraAccessSuccess');
+            });
+            
+            document.getElementById('activeTasks').addEventListener('change', function() {
+                validateSelectField('activeTasks', 'activeTasksGroup', 'activeTasksError', 'activeTasksSuccess');
+            });
+            
+            motivationTextarea.addEventListener('input', validateMotivationField);
+            motivationTextarea.addEventListener('blur', validateMotivationField);
+            
+            document.getElementById('agreement').addEventListener('change', validateAgreementField);
             
             // Form validation
             function validateForm() {
-                const discordUsername = usernameInput.value.trim();
-                const age = ageSelect.value;
-                const motivation = motivationTextarea.value.trim();
-                
                 const errors = [];
                 
-                // Validate Discord username
-                if (!validateDiscordUsername(discordUsername)) {
-                    errors.push('Discord username должен быть от 2 до 32 символов и содержать только английские буквы, цифры, точки и нижние подчеркивания');
+                // Validate all fields
+                if (!validateDiscordUsernameField()) {
+                    errors.push('Discord username');
                 }
                 
-                // Validate age
-                if (parseInt(age) < 13) {
-                    errors.push('Для участия в команде вам должно быть не менее 13 лет');
+                if (!validateAgeField()) {
+                    errors.push('Возраст');
                 }
                 
-                // Validate motivation
-                if (!validateMotivation(motivation)) {
-                    if (motivation.length < 30) {
-                        errors.push('Поле "Почему вы хотите вступить..." должно содержать минимум 30 символов');
-                    } else if (motivation.length > 2000) {
-                        errors.push('Поле "Почему вы хотите вступить..." должно содержать максимум 2000 символов');
-                    }
+                if (!validateSelectField('soraAccess', 'soraAccessGroup', 'soraAccessError', 'soraAccessSuccess')) {
+                    errors.push('Доступ к Sora 2');
+                }
+                
+                if (!validateSelectField('activeTasks', 'activeTasksGroup', 'activeTasksError', 'activeTasksSuccess')) {
+                    errors.push('Активность выполнения заданий');
+                }
+                
+                if (!validateMotivationField()) {
+                    errors.push('Мотивация');
+                }
+                
+                if (!validateAgreementField()) {
+                    errors.push('Согласие с условиями');
                 }
                 
                 return errors;
@@ -954,14 +1257,13 @@
                 // Hide all messages
                 successMessage.style.display = 'none';
                 errorMessage.style.display = 'none';
-                ageErrorMessage.style.display = 'none';
                 validationErrorMessage.style.display = 'none';
                 
                 // Validate form
                 const validationErrors = validateForm();
                 
                 if (validationErrors.length > 0) {
-                    validationErrorText.innerHTML = validationErrors.join('<br>');
+                    validationErrorText.innerHTML = `Пожалуйста, исправьте следующие поля:<br><strong>${validationErrors.join(', ')}</strong>`;
                     validationErrorMessage.style.display = 'block';
                     validationErrorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     return;
@@ -969,7 +1271,7 @@
                 
                 // Get form data
                 const discordUsername = usernameInput.value;
-                const age = ageSelect.value;
+                const age = document.getElementById('age').value;
                 const soraAccess = document.getElementById('soraAccess').value;
                 const activeTasks = document.getElementById('activeTasks').value;
                 const motivation = motivationTextarea.value;
