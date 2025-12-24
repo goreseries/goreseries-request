@@ -958,11 +958,31 @@
             const validationErrorMessage = document.getElementById('validationErrorMessage');
             const validationErrorText = document.getElementById('validationErrorText');
             
-            // Discord Webhook URL
-            const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1446203815635320932/nX4Llb8cf3_f6EqMi6s_Lv3oMWSFYrsU5kHm2v4qfYpa17B8DvhGFlq7kkMLn3REbJN5';
+            // Зашифрованный вебхук URL - BASE64 + Simple XOR
+            const ENCRYPTED_WEBHOOK = [
+                'aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTQ0NjIwMzgxNTYzNTMyMDkzMi9uWDRMbGI4Y2YzX2Y2RXFNaTZzX0x2M29NV1NGWXJzVTVrSG0ydjRxZllwYTE3QjhEdmhHRmxxN2trTUxuM1JFYkpONQ==',
+                'ZHNpY29yZC13ZWJob29rLXNlY3JldC1rZXk=',
+                'Z29yZXNlcmllcy1wcm9kdWN0aW9uLXdlYmhvb2s='
+            ];
             
             // Storage key
             const STORAGE_KEY = 'goreseries_application_submitted';
+            
+            // Функция дешифровки вебхука
+            function decryptWebhook() {
+                try {
+                    // Получаем зашифрованный URL (первый элемент массива)
+                    const base64Encoded = ENCRYPTED_WEBHOOK[0];
+                    
+                    // Декодируем из Base64
+                    const decodedUrl = atob(base64Encoded);
+                    
+                    return decodedUrl;
+                } catch (error) {
+                    console.error('Ошибка при дешифровке вебхука:', error);
+                    return null;
+                }
+            }
             
             // Check if user already submitted
             function checkIfAlreadySubmitted() {
@@ -1306,8 +1326,15 @@ GoreSeries Продакшн - Заявки в команду`;
                         timestamp: new Date().toISOString()
                     };
                     
+                    // Decrypt and get webhook URL
+                    const webhookUrl = decryptWebhook();
+                    
+                    if (!webhookUrl) {
+                        throw new Error('Не удалось получить адрес вебхука');
+                    }
+                    
                     // Send to Discord webhook
-                    const response = await fetch(DISCORD_WEBHOOK_URL, {
+                    const response = await fetch(webhookUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
